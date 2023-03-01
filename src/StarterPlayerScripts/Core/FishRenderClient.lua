@@ -18,7 +18,7 @@ local SystemsContainer = {}
 local ActiveFishEntities = { }
 
 local function Vector2int16_toVec2( vec2int16 )
-	return Vector2.new( vec2int16.X / 10, vec2int16.Y / 10 )
+	return Vector2.new( vec2int16.X / 33, vec2int16.Y / 33 )
 end
 
 -- // Module // --
@@ -33,7 +33,7 @@ baseBlock.CanQuery = false
 baseBlock.Material = Enum.Material.SmoothPlastic
 baseBlock.TopSurface = Enum.SurfaceType.SmoothNoOutlines
 baseBlock.BottomSurface = Enum.SurfaceType.SmoothNoOutlines
-baseBlock.Size = Vector3.new(0.5, 0.5, 0.5)
+baseBlock.Size = Vector3.new(0.35, 0.1, 0.35)
 
 local ActiveBlocks = { }
 
@@ -62,11 +62,9 @@ function Module:OnClientEvent( Job, ... )
 
 	if Job == 1 then -- create fish
 
-		local delta = LocalPlayer:GetNetworkPing() * 2
 		ActiveFishEntities[ Args[1] ] = {
 			Position = Args[2],
 			Velocity = Vector2int16_toVec2(Args[3]),
-			TimeElapsed = (Args[4] and Args[4] + delta or delta),
 		}
 
 	elseif Job == 2 then -- update fish
@@ -83,22 +81,23 @@ function Module:OnClientEvent( Job, ... )
 
 	elseif Job == 4 then -- batch set
 
-		local Array = Args[1]
 		local delta = LocalPlayer:GetNetworkPing() * 2
-		for fishIndex = 1, #Array, 3 do
-			local Position, Velocity, TimeElapsed = Array[fishIndex], Array[fishIndex + 1], Array[fishIndex + 2]
+
+		local Array = Args[1]
+		for fishIndex = 1, #Array, 2 do
+			local Position, Velocity = Array[fishIndex], Array[fishIndex + 1]
 			ActiveFishEntities[ fishIndex ] = {
 				Position = Position + (Velocity * delta),
 				Velocity = Velocity,
-				TimeElapsed = (TimeElapsed + delta),
 			}
 		end
 
 	elseif Job == 5 then -- force position set
 
+		local delta = LocalPlayer:GetNetworkPing()
+
 		local Data = ActiveFishEntities[ Args[1] ]
-		Data.Position = Args[2]
-		Data.TimeElapsed = Args[3] + LocalPlayer:GetNetworkPing()
+		Data.Position = Args[2] + (Data.Velocity * delta)
 
 	end
 end

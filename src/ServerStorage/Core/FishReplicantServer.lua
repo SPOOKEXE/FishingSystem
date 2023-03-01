@@ -15,8 +15,8 @@ local SystemsContainer = {}
 local ActiveFishReplicants = { }
 local ActiveFishTimers = { }
 
-local MAX_ACTIVE_FISH = 2 -- max active fish around a player
-local MAX_RENDER_DISTANCE = 60 -- max render distance from the player
+local MAX_ACTIVE_FISH = 200 -- max active fish around a player
+local MAX_RENDER_DISTANCE = 80 -- max render distance from the player
 local FORCE_UPDATE_INTERVAL = 1
 
 local function IsPointInCircle( pointXZ : Vector2, centerXZ : Vector2, radius : number ) : (boolean, Vector2)
@@ -45,7 +45,7 @@ local function RandomPointIn2DSphere(r) : Vector2
 end
 
 local function Vector2_to_int16XZ(Vec2)
-	return Vector2int16.new(Vec2.X * 10, Vec2.Y * 10)
+	return Vector2int16.new(Vec2.X * 33, Vec2.Y * 33)
 end
 
 local function RoundVector2(Vec2, places)
@@ -112,7 +112,7 @@ function Module:UpdateActiveFishEntities(deltaTime)
 			FishData.TimeElapsed += deltaTime
 			if (FishData.TimeElapsed - ActiveFishTimers[FishIndex]) > FORCE_UPDATE_INTERVAL then
 				ActiveFishTimers[FishIndex] = FishData.TimeElapsed
-				FishReplicationEvent:FireClient( LocalPlayer, 5, FishIndex, RoundVector2(FuturePosition, 2), FishData.TimeElapsed )
+				FishReplicationEvent:FireClient( LocalPlayer, 5, FishIndex, RoundVector2(FuturePosition, 2) )
 			end
 		end
 
@@ -186,7 +186,6 @@ function Module:Start()
 		for _, fishData in ipairs( ActiveFishReplicants[LocalPlayer] or { } ) do
 			table.insert(Replicants, RoundVector2(fishData.Position, 1))
 			table.insert(Replicants, Vector2_to_int16XZ(fishData.Velocity))
-			table.insert(Replicants, fishData.TimeElapsed)
 		end
 		FishReplicationEvent:FireClient(LocalPlayer, 4, Replicants)
 	end)
