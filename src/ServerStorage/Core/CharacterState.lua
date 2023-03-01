@@ -12,6 +12,10 @@ function Module:ClearCharacterData(LocalPlayer)
 	CharacterData[LocalPlayer] = nil
 end
 
+function Module:GetCharacterData(LocalPlayer)
+	return CharacterData[LocalPlayer]
+end
+
 function Module:UpdateCharacterData(LocalPlayer)
 	local Character = LocalPlayer.Character
 	local Humanoid = Character and Character:FindFirstChildWhichIsA('Humanoid')
@@ -22,9 +26,13 @@ function Module:UpdateCharacterData(LocalPlayer)
 	end
 	-- update character data
 	if CharacterData[LocalPlayer] then
-		CharacterData[LocalPlayer].Position = PivotPoint.Position
+		CharacterData[LocalPlayer].Position3D = PivotPoint.Position
+		CharacterData[LocalPlayer].Position2D = Vector2.new( PivotPoint.Position.X, PivotPoint.Position.Z )
 	else
-		CharacterData[LocalPlayer] = { Position = PivotPoint.Position }
+		CharacterData[LocalPlayer] = {
+			Position3D = PivotPoint.Position,
+			Position2D = Vector2.new( PivotPoint.Position.X, PivotPoint.Position.Z )
+		}
 	end
 end
 
@@ -46,7 +54,7 @@ end
 
 function Module:Start()
 	RunService.Heartbeat:Connect(function()
-		for LocalPlayer, _ in ipairs( Players:GetPlayers() ) do
+		for _, LocalPlayer in ipairs( Players:GetPlayers() ) do
 			Module:UpdateCharacterData(LocalPlayer)
 		end
 	end)

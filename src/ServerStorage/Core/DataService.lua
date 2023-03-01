@@ -1,3 +1,9 @@
+
+--[[
+	DO NOT USE THIS MODULE IN GAMES
+	- SLIMMED DOWN FOR TESTING PURPOSES
+]]
+
 local Players = game:GetService('Players')
 
 local ServerStorage = game:GetService('ServerStorage')
@@ -86,17 +92,6 @@ function Module:_LoadDataFromPlayer( LocalPlayer )
 
 	-- If they are still in the game by the time it has fully loaded
 	if LocalPlayer:IsDescendantOf(Players) then
-		-- check if they are banned
-		local IsBanned = SystemsContainer.BanService:CheckProfileBanExpired(LocalPlayer, Profile)
-		if IsBanned then
-			Profile:Release()
-			-- kick the player and tell them they are banned
-			local BanMessage = SystemsContainer.BanService:CompileBanMessage(Profile.Data.Banned)
-			if LocalPlayer:IsDescendantOf(Players) then
-				LocalPlayer:Kick(BanMessage)
-			end
-			return false
-		end
 		ProfileCache[LocalPlayer.UserId] = Profile
 	else
 		-- if they left, release the profile
@@ -110,17 +105,11 @@ function Module:_LoadDataFromPlayer( LocalPlayer )
 end
 
 function Module:OnPlayerAdded( LocalPlayer )
-	print('Loading', LocalPlayer.Name, "'s profile data.")
-	local profile = Module:_LoadDataFromPlayer( LocalPlayer )
-
-	--- setup leaderboard stuff
-
-	return profile
+	return Module:_LoadDataFromPlayer( LocalPlayer )
 end
 
 function Module:OnPlayerRemoving( LocalPlayer )
 	local activeProfile = ProfileCache[LocalPlayer]
-
 	if activeProfile then
 		ProfileCache[LocalPlayer]:Release()
 	end
